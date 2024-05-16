@@ -5,6 +5,6 @@ module.exports = {
 	.setName('beep')
 	.setDescription('Beep!'),
 	async execute(interaction) {
-		return interaction.reply("Baptiste je te baise");
+		return interaction.reply("Lucas gros lardon");
 	},
 };
