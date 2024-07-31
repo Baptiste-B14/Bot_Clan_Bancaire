@@ -16,7 +16,11 @@ const Planet = sequelize.define('planet', {
         unique: true
     },
 
-
+    production: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        unique: false,
+    },
     /*
     avantage: {
         type: Sequelize.STRING,
@@ -24,20 +28,18 @@ const Planet = sequelize.define('planet', {
         unique: false
     },
     */
+    lastCollect:{
+        type:Sequelize.DATE,
+        allowNull: true,
+        unique: false,
+    },
 
-
-    salon: {
+    salon:{
        type: Sequelize.STRING,
         allowNull: false,
         unique: true,
     },
 
-
-    idMine: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-        unique: true
-    },
 
 
 
