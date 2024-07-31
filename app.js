@@ -1,7 +1,11 @@
 // Require the necessary discord.js classes
 const fs = require('fs');
-const { Client, Collection, Intents } = require('discord.js');
+const { Client, Events, Collection, Intents } = require('discord.js');
 const { token } = require('./config.json');
+const Sequelize = require("sequelize");
+const db = require('./database/db');
+const {USER, DATABASE, PWD, HOST} = require('./database/db.json');
+
 // const database = require('./testConnexion.js');
 
 // // Create a new client instance
@@ -35,3 +39,8 @@ for (const file of eventFiles) {
 
 // Login to Discord with your client's token
 client.login(token);
+
+
+
+
+console.log("Connected to database !")
