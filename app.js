@@ -6,7 +6,6 @@ import {
   verifyKeyMiddleware,
 } from 'discord-interactions';
 import { getRandomEmoji } from './utils.js';
-import { doSomething } from './beep.js'
 
 // Create an express app
 const app = express();
@@ -35,23 +34,11 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
   if (type === InteractionType.APPLICATION_COMMAND) {
     const { name } = data;
 
-    if (name === 'beep') {
-      return doSomething(res)
-    }
-    // "test" command
-    if (name === 'test') {
-      // Send a message into the channel where command was triggered from
-      return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          // Fetches a random emoji to send from a helper function
-          content: `hello world ${getRandomEmoji()}`,
-        },
-      });
-    }
+    const {doSomething} = await import('./commands/'+name+'.js');
+    return await doSomething(res);
 
-    console.error(`unknown command: ${name}`);
-    return res.status(400).json({ error: 'unknown command' });
+    // console.error(`unknown command: ${name}`);
+    // return res.status(400).json({ error: 'unknown command' });
   }
 
   console.error('unknown interaction type', type);
