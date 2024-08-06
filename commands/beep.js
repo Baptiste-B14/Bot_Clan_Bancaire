@@ -1,21 +1,10 @@
-import {
-  InteractionResponseType,
-} from 'discord-interactions';
+const { SlashCommandBuilder } = require('@discordjs/builders');
 
-export const COMMAND_DEF = {
-    name: 'beep',
-    description: 'Je suis la commande beep',
-    type: 1,
-    integration_types: [0, 1],
-    contexts: [0, 1, 2],
-  }
-
-export function doSomething(res) {
-    return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          // Fetches a random emoji to send from a helper function
-          content: 'boofdsghbp',
-        },
-      });
-}
+module.exports = {
+	data: new SlashCommandBuilder()
+	.setName('beep')
+	.setDescription('Beep!'),
+	async execute(interaction) {
+		return interaction.reply("Lucas, t'es un gros lardon, mais kylian te bat");
+	},
+};
