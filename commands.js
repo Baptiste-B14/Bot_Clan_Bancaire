@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { getRPSChoices } from './game.js';
-import { capitalize, InstallGlobalCommands } from './utils.js';
+import { capitalize, InstallGlobalCommands } from './utils/usefull.js';
 import { readdirSync } from 'fs';
 
 const commandFiles = readdirSync('./commands').filter(file => file.endsWith('.js'));

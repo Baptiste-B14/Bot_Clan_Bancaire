@@ -1,5 +1,5 @@
 import 'dotenv/config';
-
+import * as readline from 'readline'
 export async function DiscordRequest(endpoint, options) {
   // append endpoint to root API URL
   const url = 'https://discord.com/api/v10/' + endpoint;
@@ -44,4 +44,44 @@ export function getRandomEmoji() {
 
 export function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+
+export function askQuestion(query) {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+  return new Promise(resolve => rl.question(query + "\n", ans => {
+    rl.close();
+    resolve(ans);
+  }));
+}
+
+export async function modelExists(model){
+  try {
+    const {Model} = await import(`../models/${model}.js`)
+    return true
+  } catch (error) {
+    return false
+  }
+}
+
+export async function getModel(modelRequired) {
+  try {
+    const {Model} = await import(`../models/${modelRequired}.js`)
+    return Model
+  } catch (error) {
+    return null
+  }
+}
+
+export async function getModelColumns(modelRequired) {
+  try {
+    const {Model} = await import(`../models/${modelRequired}.js`)
+    return Object.keys(Model.rawAttributes);
+  } catch (error) {
+    return null
+  }
 }

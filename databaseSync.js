@@ -1,5 +1,4 @@
-const userData = require('./models/userData');
-const planetData = require('./models/planet');
+import {Model} from './models/test.js'
 
 
 
@@ -10,5 +9,4 @@ const planetData = require('./models/planet');
 
 
 
-userData.sync({alter: true});
-planetData.sync({alter: true});
+await Model.sync({force: true});

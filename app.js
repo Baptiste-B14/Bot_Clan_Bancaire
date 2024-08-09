@@ -5,7 +5,6 @@ import {
   InteractionResponseType,
   verifyKeyMiddleware,
 } from 'discord-interactions';
-import { getRandomEmoji } from './utils.js';
 
 // Create an express app
 const app = express();
@@ -35,7 +34,11 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     const { name } = data;
 
     const {doSomething} = await import('./commands/'+name+'.js');
-    return await doSomething(res);
+    try {
+      return await doSomething(res);
+    } catch (error) {
+      console.log(error)
+    }
 
     // console.error(`unknown command: ${name}`);
     // return res.status(400).json({ error: 'unknown command' });

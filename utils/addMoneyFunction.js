@@ -1,4 +1,4 @@
-const User = require("../models/userData");
+const User = require("../../models/userData");
 
 
 function addMoney(id, money){
