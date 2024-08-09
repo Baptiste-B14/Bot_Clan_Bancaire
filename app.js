@@ -35,7 +35,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     const { name } = data;
 
     const {doSomething} = await import('./commands/'+name+'.js');
-    return await doSomething(res);
+    return await doSomething(res, req);
 
     // console.error(`unknown command: ${name}`);
     // return res.status(400).json({ error: 'unknown command' });

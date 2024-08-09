@@ -1,53 +1,105 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require("discord.js");
-const {Sequelize} = require('sequelize');
-const User = require("../models/userData");
+import {User} from "../models/userData.js";
+import {
+    InteractionResponseType
+} from "discord-interactions";
 
+export const COMMAND_DEF = {
+    name: 'profil',
+    description: 'Print the informations of the player',
+    type: 1,
+    options: [{
+        name: 'player',
+        description: 'The player you want to know more about',
+        required: false,
+        type: 6,
+    }
+    ],
+}
 
-module.exports = {
-    data: new SlashCommandBuilder()
-        .setName('profil')
-        .setDescription('Print the informations of the player')
-        .addStringOption(option =>
-            option.setName('player')
-                .setDescription('The player you want to know more about')
-                .setRequired(false)
+export async function doSomething(res, req) {
 
-        ),
+        const player = req.body.data.options.find(option => option.name === 'player').value ?? req.body.member.user.id;
+        console.log(player);
+        try {
+            const users = await User.findOne({
+                where: {discordId: player },
+                attributes: ['pseudo', 'money']
+            });
+            console.log(users);
 
-    async execute(interaction) {
-        const player = interaction.options.getString('player') ?? interaction.user.id;
-        console.log(interaction.options.getString('player'));
-        const users = await User.findOne({
-            where: { discordId: player },
-            //attributes: ['pseudo', 'money']
+            if(users === null) {
+                return res.send({
+                    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                    data: {
+                        content: 'Le joueur que vous avez sélectionné n\'est pas référencé dans le jeu',
+                    },
+                });
+            }
+
+            const { pseudo, money } = users.dataValues;
+        const embed  = {
+            title: `${pseudo}\'s profile.`,
+            color: 0x0146b1,
+            author: {
+                name: 'Some name',
+                icon_url: 'https://i.imgur.com/AfFp7pu.png',
+                url: 'https://discord.js.org',
+            },
+            description: `Argent : ${money}\nPlanètes : `,
+            thumbnail: {
+                url: 'https://i.imgur.com/AfFp7pu.png',
+            },
+            fields: [
+                {
+                    name: 'Regular field title',
+                    value: 'Some value here',
+                },
+                {
+                    name: '\u200b',
+                    value: '\u200b',
+                    inline: false,
+                },
+                {
+                    name: 'Inline field title',
+                    value: 'Some value here',
+                    inline: true,
+                },
+                {
+                    name: 'Inline field title',
+                    value: 'Some value here',
+                    inline: true,
+                },
+                {
+                    name: 'Inline field title',
+                    value: 'Some value here',
+                    inline: true,
+                },
+            ],
+            image: {
+                url: 'https://i.imgur.com/AfFp7pu.png',
+            },
+            timestamp: new Date().toISOString(),
+            footer: {
+                text: 'Some footer text here',
+                icon_url: 'https://i.imgur.com/AfFp7pu.png',
+            },
+        };
+
+        return res.send({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+                embeds: [embed],
+            },
         });
+    }catch (error){
+        return res.send({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+                content: 'Error',
+            },
+        });
+    }
 
-
-        const { pseudo, money } = users.dataValues;
-
-
-
-
-        //console.log(users);
-        //console.log(users.dataValues('pseudo'));
-        // Transformez les résultats pour obtenir uniquement les dataValues
-       //const infos = users.map(user => user.dataValues);
-
-
-        //console.log(infos);
-
-
-        const embed = new MessageEmbed()
-            .setTitle(`${pseudo} profile`)
-            .setDescription(`Argent : ${money}\nPlanètes : `)
-
-            .setColor('#0146b1');
-
-        return interaction.reply({ embeds: [embed] });
-
-
-    },
-};
+}
 
 

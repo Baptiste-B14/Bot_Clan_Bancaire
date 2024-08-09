@@ -1,15 +1,12 @@
-const Sequelize = require('sequelize');
-const config = require('./db.json');
+import { Sequelize } from "sequelize";
+import config from './db.json' assert { type: 'json' };
 
-const sequelize = new Sequelize(config.DATABASE, config.USER, config.PWD, {
+
+
+
+export const sequelize = new Sequelize(config.DATABASE, config.USER, config.PWD, {
     dialect: 'mysql',
     host: config.HOST,
 
     logging: false,
 });
-
-
-
-
-
-module.exports = sequelize;

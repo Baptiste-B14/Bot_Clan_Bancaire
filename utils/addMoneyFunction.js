@@ -1,13 +1,19 @@
-const User = require("../models/userData");
 
+import {User} from "../models/userData.js"
 
-function addMoney(id, money){
-    const user = User.update({
-        money: money,
-    }, {where: {discordId: id}});
+export function addMoney(id, money){
+    try {
+        User.update({
+                money: money,
+            },
+            {
+                where: {
+                    discordId: id,
+                },
+            },);
+    }catch( error){
+        console.log(error);
+    }
 }
 
-module.exports = {
-    addMoney: addMoney,
 
-};
