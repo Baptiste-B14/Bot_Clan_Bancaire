@@ -8,11 +8,11 @@
   "engines": {
     "node": ">=18.x"
   },
-  "scripts": {
+  "scripts": { 
     "start": "node app.js",
     "register": "node commands.js",
     "dev": "nodemon app.js",
-    "tunnel" : "start cmd /k \"ngrok http --domain=crisp-fully-moose.ngrok-free.app 3000\" && npm run start"
+    "tunnel" : "start cmd /k \"ngrok http --domain=crisp-fully-moose.ngrok-free.app 3000\" && npm run dev"
   },
   "author": "Shay DeWael",
   "license": "MIT",

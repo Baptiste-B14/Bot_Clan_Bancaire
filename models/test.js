@@ -22,5 +22,4 @@ export const Model = db.define(
         timestamps: false,
     }
 );
-
 //Model.sync({force: true})
