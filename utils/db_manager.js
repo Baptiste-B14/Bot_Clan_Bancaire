@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import {db} from '../database/db.js'
+import { db } from '../database/db.js'
 import { simpleInsert, simpleSelect } from './queries.js'
 import { askQuestion, getModel, modelExists } from './usefull.js';
 
@@ -126,7 +126,7 @@ async function create(){
                 colType = Sequelize.INTEGER
                 break;
             case 'string':
-                colType = Sequelize.toString;
+                colType = Sequelize.STRING;
                 break;
             default:
                 throwError("Type de colonne inconnu")
@@ -142,8 +142,8 @@ async function create(){
         }
         if (primareyKey === 'Y') {
             hasPrimareyKey = true;
-            modelDict[colName].primareyKey = true
-            modelDict[colName].unique = true
+            
+            
             autoIncrement = await askQuestion("' " + colName + " ' doit-elle s'autoincrémenter ? (Y\\N)")
             while (autoIncrement !== 'Y' && autoIncrement !== 'N') {
                 throwError("Saisie incorrect, veuillez recommencer. (Y\\N)")
@@ -152,6 +152,8 @@ async function create(){
             if (autoIncrement === 'Y') {
                 modelDict[colName].autoIncrement = true
             }
+            modelDict[colName].unique = true
+            modelDict[colName].primaryKey = true
         }
         }
         
@@ -176,10 +178,11 @@ async function create(){
     }
     if (synchro === 'Y') {
         console.log("Voici le modèle finale : ")
-        const Model = db.define(tableName, modelDict, timestamp)
+        
         console.log(tableName)
         console.log(modelDict)
         console.log(timestamp)
+        const Model = db.define(tableName, modelDict)
     }
     
 }
