@@ -17,7 +17,7 @@ export async function doSomething(res) {
     return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: await simpleSelect(Model, ['id', 'name', 'age']),
+          content: await simpleSelect(Model, ['id', 'name', 'age'], true),
         },
       });
 }
