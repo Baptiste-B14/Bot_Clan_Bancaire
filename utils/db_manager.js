@@ -1,50 +1,53 @@
+import 'dotenv/config';
 import { Sequelize } from 'sequelize';
 import { db } from '../database/db.js'
 import { simpleInsert, simpleSelect } from './queries.js'
 import { askQuestion, getModel, modelExists } from './usefull.js';
+import {writeFile} from 'fs';
 
 const types = ['int', 'integer', 'string', 'date', 'bool', 'boolean', 'long', 'text', 'short']
+const modelsPath = process.env.MODELS_PATH;
 
 console.clear()
-    throwInfo("Bienvenue dans le Database Manager 1.0");
-    const args = process.argv.slice(2);
+throwInfo("Bienvenue dans le Database Manager 1.0");
+const args = process.argv.slice(2);
 
-    if (args.length < 1) {
-        throwError("Aucun arguments passés en paramètres.");
-        process.exit(1);
-    }
-    try {
-        if (args[0].startsWith('-')) {
-            if (!args[0].split('-')[1]) {
-                throwError("Argument incomplet");
-            } else {
-                switch (args[0].split('-')[1]) {
-                    case 'c':
-                        throwInfo("Création sélectionnée");
-                        create();
-                        break;
-                    case 's':
-                        throwInfo("Sélection sélectionnée");
-                        break;
-                    case 'i':
-                        throwInfo("Insertion sélectionnée");
-                        insert()
-                        break;
-                    case 'd':
-                        throwInfo("Déletion sélectionnée");
-                        break;
-                    case 'a':
-                        throwInfo("Modification sélectionnée");
-                        break;
-                    default:
-                        throwError("Argument inconnu");
-                        break;
-                }    
-            }
+if (args.length < 1) {
+    throwError("Aucun arguments passés en paramètres.");
+    process.exit(1);
+}
+try {
+    if (args[0].startsWith('-')) {
+        if (!args[0].split('-')[1]) {
+            throwError("Argument incomplet");
+        } else {
+            switch (args[0].split('-')[1]) {
+                case 'c':
+                    throwInfo("Création sélectionnée");
+                    create();
+                    break;
+                case 's':
+                    throwInfo("Sélection sélectionnée");
+                    break;
+                case 'i':
+                    throwInfo("Insertion sélectionnée");
+                    insert()
+                    break;
+                case 'd':
+                    throwInfo("Déletion sélectionnée");
+                    break;
+                case 'a':
+                    throwInfo("Modification sélectionnée");
+                    break;
+                default:
+                    throwError("Argument inconnu");
+                    break;
+            }    
         }
-    } catch (error) {
-        throwError(error);
     }
+} catch (error) {
+    throwError(error);
+}
 
 /*=================================
         MANAGING DATABASE
@@ -139,22 +142,22 @@ async function create(){
             console.log(primareyKey)
             throwError("Saisie incorrect, veuillez recommencer. (Y\\N)")
             primareyKey = await askQuestion("' " + colName + " ' doit-elle être une clé primaire ? (Y\\N)")
-        }
-        if (primareyKey === 'Y') {
-            hasPrimareyKey = true;
-            
-            
-            autoIncrement = await askQuestion("' " + colName + " ' doit-elle s'autoincrémenter ? (Y\\N)")
-            while (autoIncrement !== 'Y' && autoIncrement !== 'N') {
-                throwError("Saisie incorrect, veuillez recommencer. (Y\\N)")
+            }
+            if (primareyKey === 'Y') {
+                hasPrimareyKey = true;
+                
+                
                 autoIncrement = await askQuestion("' " + colName + " ' doit-elle s'autoincrémenter ? (Y\\N)")
+                while (autoIncrement !== 'Y' && autoIncrement !== 'N') {
+                    throwError("Saisie incorrect, veuillez recommencer. (Y\\N)")
+                    autoIncrement = await askQuestion("' " + colName + " ' doit-elle s'autoincrémenter ? (Y\\N)")
+                }
+                if (autoIncrement === 'Y') {
+                    modelDict[colName].autoIncrement = true
+                }
+                modelDict[colName].unique = true
+                modelDict[colName].primaryKey = true
             }
-            if (autoIncrement === 'Y') {
-                modelDict[colName].autoIncrement = true
-            }
-            modelDict[colName].unique = true
-            modelDict[colName].primaryKey = true
-        }
         }
         
     }
@@ -171,18 +174,20 @@ async function create(){
     }
 
 
+    console.clear()
+    console.log(tableName)
+    console.log(modelDict)
+    console.log(timestamp)
+    writeFile(modelsPath+tableName+'.js', modelDict, {flag: 'a'}, err=>{console.log(err)})
+
     const synchro = await askQuestion("Voici le format final de la table. Voulez vous le synchroniser ?")
     while (synchro !== 'Y' && synchro !== 'N') {
         throwError("Saisie incorrect, veuillez recommencer. (Y\\N)")
-        synchro = await askQuestion(tableName + " doit-elle être suivie des timestamp ? (Y\\N)")
+        synchro = await askQuestion(tableName + "  Voulez vous le synchroniser ? (Y\\N)")
     }
     if (synchro === 'Y') {
-        console.log("Voici le modèle finale : ")
         
-        console.log(tableName)
-        console.log(modelDict)
-        console.log(timestamp)
-        const Model = db.define(tableName, modelDict)
+        //const Model = db.define(tableName, modelDict)
     }
     
 }
@@ -198,7 +203,7 @@ function throwError(message) {
 }
 
 function throwInfo(message) {
-    console.error('\x1b[34m%s\x1b[0m', "INFO : " + message);
+    console.log('\x1b[34m%s\x1b[0m', "INFO : " + message);
 }
 
 function throwSuccess(message){

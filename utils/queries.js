@@ -1,6 +1,9 @@
-export async function simpleSelect(model, champs) {
+export async function simpleSelect(model, champs, debug) {
     const models = await model.findAll({attributes: champs})
     const modelsJSON = JSON.parse(JSON.stringify(models))
+    if(debug == true){
+        console.log(modelsJSON)
+    }
     return modelsJSON
 }
 

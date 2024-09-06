@@ -31,7 +31,9 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
    * See https://discord.com/developers/docs/interactions/application-commands#slash-commands
    */
   if (type === InteractionType.APPLICATION_COMMAND) {
+    
     const { name } = data;
+    console.log(`command triggered ${name}`)
 
     const {doSomething} = await import('./commands/'+name+'.js');
     try {
