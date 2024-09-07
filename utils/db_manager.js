@@ -3,10 +3,26 @@ import { Sequelize } from 'sequelize';
 import { db } from '../database/db.js'
 import { simpleInsert, simpleSelect } from './queries.js'
 import { askQuestion, getModel, modelExists } from './usefull.js';
-import {writeFile} from 'fs';
+import {writeFileSync} from 'fs';
 
 const types = ['int', 'integer', 'string', 'date', 'bool', 'boolean', 'long', 'text', 'short']
 const modelsPath = process.env.MODELS_PATH;
+
+const testDict = {
+    id: {
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        unique: true,
+        primaryKey: true
+    },
+
+    name: {
+        type: Sequelize.STRING
+    },
+    age: {
+        type: Sequelize.INTEGER
+    }
+}
 
 console.clear()
 throwInfo("Bienvenue dans le Database Manager 1.0");
@@ -31,13 +47,17 @@ try {
                     break;
                 case 'i':
                     throwInfo("Insertion sélectionnée");
-                    insert()
+                    insert();
                     break;
                 case 'd':
                     throwInfo("Déletion sélectionnée");
                     break;
                 case 'a':
                     throwInfo("Modification sélectionnée");
+                    break;
+                case 't':
+                    console.log("Test phase")
+                    writeDictToFile(testDict, modelsPath+'a.js')
                     break;
                 default:
                     throwError("Argument inconnu");
@@ -114,7 +134,7 @@ async function create(){
         console.clear()
         console.log(modelDict)
         throwInfo("Création d'une colonne ("+(i+1)+"/"+nbColonne+")")
-        let colName = await askQuestion("Quel est le nom de la colonne ?")
+        colName = await askQuestion("Quel est le nom de la colonne ?")
         modelDict[colName] = {}
         colTypeName = await askQuestion("Quel type souhaitez-vous pour la colonne " + colName + " ?")
         while (!checkType(colTypeName)) {
@@ -137,22 +157,13 @@ async function create(){
         }
         modelDict[colName].type = colType
         if (!hasPrimareyKey) {
-            primareyKey = await askQuestion("' " + colName + " ' doit-elle être une clé primaire ? (Y\\N)")
-            while (primareyKey !== 'Y' && primareyKey !== 'N') {
-            console.log(primareyKey)
-            throwError("Saisie incorrect, veuillez recommencer. (Y\\N)")
-            primareyKey = await askQuestion("' " + colName + " ' doit-elle être une clé primaire ? (Y\\N)")
-            }
-            if (primareyKey === 'Y') {
+            primareyKey = await yesNo("' " + colName + " ' doit-elle être une clé primaire ? (Y\\N)");
+            if (primareyKey) {
                 hasPrimareyKey = true;
                 
                 
-                autoIncrement = await askQuestion("' " + colName + " ' doit-elle s'autoincrémenter ? (Y\\N)")
-                while (autoIncrement !== 'Y' && autoIncrement !== 'N') {
-                    throwError("Saisie incorrect, veuillez recommencer. (Y\\N)")
-                    autoIncrement = await askQuestion("' " + colName + " ' doit-elle s'autoincrémenter ? (Y\\N)")
-                }
-                if (autoIncrement === 'Y') {
+                autoIncrement = await yesNo("' " + colName + " ' doit-elle s'autoincrémenter ? (Y\\N)");
+                if (autoIncrement) {
                     modelDict[colName].autoIncrement = true
                 }
                 modelDict[colName].unique = true
@@ -162,15 +173,11 @@ async function create(){
         
     }
 
-    timestamp = await askQuestion(tableName + " doit-elle être suivie des timestamp ? (Y\\N)")
-    while (timestamp !== 'Y' && timestamp !== 'N') {
-        throwError("Saisie incorrect, veuillez recommencer. (Y\\N)")
-        timestamp = await askQuestion(tableName + " doit-elle être suivie des timestamp ? (Y\\N)")
-    }
-    if (timestamp === 'N') {
-        timestamp = { timestamps: false,}
-    }else{
+    timestamp = await yesNo(tableName + " doit-elle être suivie des timestamp ? (Y\\N)");
+    if (timestamp) {
         timestamp = { timestamps: true,}
+    }else{
+        timestamp = { timestamps: false,}
     }
 
 
@@ -178,16 +185,25 @@ async function create(){
     console.log(tableName)
     console.log(modelDict)
     console.log(timestamp)
-    writeFile(modelsPath+tableName+'.js', modelDict, {flag: 'a'}, err=>{console.log(err)})
 
-    const synchro = await askQuestion("Voici le format final de la table. Voulez vous le synchroniser ?")
-    while (synchro !== 'Y' && synchro !== 'N') {
-        throwError("Saisie incorrect, veuillez recommencer. (Y\\N)")
-        synchro = await askQuestion(tableName + "  Voulez vous le synchroniser ? (Y\\N)")
-    }
-    if (synchro === 'Y') {
+    let synchro = await yesNo("Voici le format final de la table. Voulez vous le synchroniser avec la BD?")
+    if (synchro) {
         
         //const Model = db.define(tableName, modelDict)
+    }
+
+    let writeToFile= await yesNo("Souhaitez-vous l'écrire ?");
+    if (writeToFile) {
+        const location = modelsPath+tableName+'.js';
+        writeFileSync(location, "import { Sequelize } from 'sequelize'\n", {flag: 'a'}, err=>{console.log(err)});
+        writeFileSync(location, `import { db } from '${process.env.DB_SCRIPT_PATH}'\n\n`, {flag: 'a'}, err=>{console.log(err)});
+        writeFileSync(location, 'export const Model = db.define(\n', {flag: 'a'}, err=>{console.log(err)});
+        writeFileSync(location, `\t\'${tableName}\',\n`, {flag: 'a'}, err=>{console.log(err)});
+        writeDictToFile(modelDict, location)
+        writeDictToFile(timestamp, location)
+        writeFileSync(location, ');', {flag: 'a'}, err=>{console.log(err)});
+
+        //writeFileSync(location, ``, {flag: 'a'}, err=>{console.log(err)});
     }
     
 }
@@ -217,3 +233,34 @@ function checkType(type) {
 
     return false;
 }
+
+async function yesNo(question) {
+    let answer = await askQuestion(question);
+    while (answer.toLowerCase() != "y" && answer.toLowerCase() != "n" && answer.toLowerCase() != "yes" && answer.toLowerCase() != "no"){
+        throwError("Réponse incorrete, veuillez recommencer. (Y\\N)");
+        answer = await askQuestion(question);
+    }
+
+    return answer.toLowerCase() == "y" || answer.toLowerCase() == "yes";
+}
+
+function writeDictToFile(dict, location) {
+    writeFileSync(location, `\t{\n`, {flag: 'a'}, err=>{console.log(err)});
+    for (const colName in dict) {
+        let line = '\t\t'+ colName + ': {\n'
+        for(const colProperty in dict[colName]){
+            line = line + `\t\t\t${colProperty}: `
+            if(dict[colName][colProperty].toString() != "true"){
+            line = line + 'Sequelize.'
+            }
+            line = line + dict[colName][colProperty].toString() + ',\n'
+            //dict[colName][colProperty].toString()
+        }
+        //
+       
+        line = line + '\t\t},\n'
+        writeFileSync(location, `${line}`, {flag: 'a'}, err=>{console.log(err)});
+    }
+    writeFileSync(location, `\t},\n`, {flag: 'a'}, err=>{console.log(err)});
+}
+

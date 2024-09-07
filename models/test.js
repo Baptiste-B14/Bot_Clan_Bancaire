@@ -10,7 +10,6 @@ export const Model = db.define(
             unique: true,
             primaryKey: true
         },
-
         name: {
             type: Sequelize.STRING
         },
@@ -22,4 +21,4 @@ export const Model = db.define(
         timestamps: false,
     }
 );
-//Model.sync({force: true})
+//Model.sync({force: true})import { Sequelize } from 'sequelize'

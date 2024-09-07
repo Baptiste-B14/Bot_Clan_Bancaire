@@ -23,5 +23,3 @@ export async function alterTable(model, isForced) {
 
 
 //update tuple
-
-//create Table
