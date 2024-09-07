@@ -7,7 +7,7 @@ import { HasPlanet} from "./models/hasPlanet.js";
 
 
 try {
-
+    await User.sync({force: true});
     await HasPlanet.sync({force: true});
     await Planet.sync({force: true});
 

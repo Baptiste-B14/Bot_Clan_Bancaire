@@ -12,7 +12,9 @@
     "start": "node app.js",
     "register": "node commands.js",
     "dev": "nodemon app.js",
-    "tunnel" : "start cmd /k  \"ngrok http --domain=quiet-usefully-leech.ngrok-free.app 3000\" && npm run dev"
+    "tunnel": "start cmd /k  \"ngrok http --domain=quiet-usefully-leech.ngrok-free.app 3000\" && npm run dev",
+    "lint": "eslint ",
+    "lint-fix": "eslint --fix .  --ext .js"
   },
   "author": "Shay DeWael",
   "license": "MIT",
@@ -22,11 +24,15 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "fs": "^0.0.1-security",
-    "lint": "^0.8.19",
+    "lint": "^1.1.2",
+    "mysql2": "^3.11.0",
     "node-fetch": "^3.3.2",
     "sequelize": "^6.37.3"
   },
   "devDependencies": {
+    "@eslint/js": "^9.10.0",
+    "eslint": "^9.10.0",
+    "globals": "^15.9.0",
     "nodemon": "^3.0.0"
   }
 }
