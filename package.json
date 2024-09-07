@@ -12,7 +12,9 @@
     "start": "node app.js",
     "register": "node commands.js",
     "dev": "nodemon app.js",
-    "tunnel": "start cmd /k \"ngrok http --domain=crisp-fully-moose.ngrok-free.app 3000\" && npm run dev"
+    "tunnel": "start cmd /k  \"ngrok http --domain= 3000\" && npm run dev",
+    "lint": "eslint ",
+    "lint-fix": "eslint --fix .  --ext .js"
   },
   "author": "Shay DeWael",
   "license": "MIT",
@@ -20,16 +22,19 @@
     "@discordjs/opus": "^0.9.0",
     "@discordjs/voice": "^0.17.0",
     "discord-interactions": "^4.0.0",
-    "discord.js": "^14.16.1",
+    "discord.js": "^14.15.3",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "ffmpeg-static": "^5.2.0",
     "fs": "^0.0.1-security",
-    "libsodium-wrappers": "^0.7.15",
+    "lint": "^1.1.2",
     "mysql2": "^3.11.0",
+    "node-fetch": "^3.3.2",
     "sequelize": "^6.37.3"
   },
   "devDependencies": {
+    "@eslint/js": "^9.10.0",
+    "eslint": "^9.10.0",
+    "globals": "^15.9.0",
     "nodemon": "^3.0.0"
   }
 }

@@ -28,4 +28,4 @@ function createCommandChoices() {
 }
 
 console.log(ALL_COMMANDS)
-InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);
+InstallGlobalCommands( process.env.APP_ID, ALL_COMMANDS);

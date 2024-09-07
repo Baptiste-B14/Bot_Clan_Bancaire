@@ -1,37 +1,36 @@
 import { Sequelize } from 'sequelize';
 import { sequelize } from "../database/db.js";
 
-export const Planet = sequelize.define('planet', {
+export const User = sequelize.define('user', {
     id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         unique: true,
         primaryKey: true
     },
-    name: {
+    discordId: {
         type: Sequelize.STRING,
         allowNull: true,
-        unique: true
-    },
-    salon: {
-        type: Sequelize.STRING, // Stocke l'ID du channel Discord
-        allowNull: false,
         unique: true,
     },
-    role: {
+    username: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
-    },
-    idMine: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
         unique: true
     },
-    cost: {
-        type: Sequelize.INTEGER,
+    pseudo: {
+        type: Sequelize.STRING,
         allowNull: false,
+        unique: true
+    },
+    money: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        unique: false
+    },
+    moneyUsed: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
         unique: false
     },
 });
-

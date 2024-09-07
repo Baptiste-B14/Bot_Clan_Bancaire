@@ -21,5 +21,28 @@ export async function alterTable(model, isForced) {
     await model.sync({force: isForced})
 }
 
+export async function selectWithWhere(model, champs, conditions) {
+    const models = await model.findAll({
+        attributes: champs,
+        where: conditions
+    });
+    const modelsJSON = JSON.parse(JSON.stringify(models));
+    console.log(modelsJSON);
+    return modelsJSON;
+}
+
+
+export async function simpleUpdate(model, champs, conditions) {
+    const [affectedRows] = await model.update(
+       champs,
+       {
+           where: conditions
+       });
+
+    return affectedRows;
+}
+
 
 //update tuple
+
+//create Table
