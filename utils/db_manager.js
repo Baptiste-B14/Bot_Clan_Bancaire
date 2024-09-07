@@ -8,22 +8,6 @@ import {writeFileSync} from 'fs';
 const types = ['int', 'integer', 'string', 'date', 'bool', 'boolean', 'long', 'text', 'short']
 const modelsPath = process.env.MODELS_PATH;
 
-const testDict = {
-    id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        unique: true,
-        primaryKey: true
-    },
-
-    name: {
-        type: Sequelize.STRING
-    },
-    age: {
-        type: Sequelize.INTEGER
-    }
-}
-
 console.clear()
 throwInfo("Bienvenue dans le Database Manager 1.0");
 const args = process.argv.slice(2);
@@ -57,7 +41,6 @@ try {
                     break;
                 case 't':
                     console.log("Test phase")
-                    writeDictToFile(testDict, modelsPath+'a.js')
                     break;
                 default:
                     throwError("Argument inconnu");
@@ -87,8 +70,6 @@ async function insert(){
             nbInsert = parseInt(nbInsert);
             if (!isNaN(nbInsert)) {
                 for(let i = 0; i < nbInsert; i++){
-                    
-                    
                     const cols = model.rawAttributes;
                     let insertDict = {}
                     for(const colonne in cols){
@@ -107,7 +88,6 @@ async function insert(){
             }else{
                 throwError(nbInsert + " n'est pas un nompbre valide")
             }
-            
         }else{
             throwError(table + " ne fait pas partie des table connues.");
         }
@@ -121,6 +101,7 @@ async function create(){
         throwError(nbColonne + " n'est pas un nombre valide.");
         nbColonne = await askQuestion("De combien de colonne avez vous besoin ?");
     }
+    
     let modelDict = {};
     let colName;
     let colType;
@@ -254,10 +235,7 @@ function writeDictToFile(dict, location) {
             line = line + 'Sequelize.'
             }
             line = line + dict[colName][colProperty].toString() + ',\n'
-            //dict[colName][colProperty].toString()
-        }
-        //
-       
+        }       
         line = line + '\t\t},\n'
         writeFileSync(location, `${line}`, {flag: 'a'}, err=>{console.log(err)});
     }
