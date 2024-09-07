@@ -1,9 +1,7 @@
-import {addMoney} from "../utils/addMoneyFunction.js";
-import {User} from "../models/userData.js";
-
-import {
-    InteractionResponseType
-} from "discord-interactions";
+import {addMoney} from "../utils/moneyFunction.js";
+import {User} from "../models/user.js";
+import {resString, resEmbed} from "../utils/res.js";
+import * as queries from "../utils/queries.js";
 
 
 export const COMMAND_DEF = {
@@ -26,40 +24,25 @@ export const COMMAND_DEF = {
 }
 
 export async function doSomething(res, req) {
-
-    const player = req.body.data.options.find(option => option.name === 'player').value;
-    console.log(player);
-    const amount = Math.abs(req.body.data.options.find(option => option.name === 'amount').value);
     try {
-        const users = await User.findOne({
-            where: {discordId: player },
-            attributes: ['pseudo', 'money']
-        });
+        const player = req.body.data.options.find(option => option.name === 'player').value;
+        const amount = req.body.data.options.find(option => option.name === 'amount').value;
 
-        if(users === null) {
-            return res.send({
-                type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-                data: {
-                    content: 'Le joueur que vous avez sélectionné n\'est pas référencé dans le jeu',
-                },
-            });
-        }
-        const { pseudo, money } = users.dataValues;
-
+        const users = await queries.selectWithWhere(User, ['pseudo', 'money'], {discordId: player} );
+        if(users === null) resString(res, 'Le joueur que vous avez sélectionné n\'est pas référencé dans le jeu');
         try{
-            const moneyUpdated = money+ amount;
-            await addMoney(player , moneyUpdated);
+            const newMoney = await addMoney(player, users[0].money, amount);
 
 
             const embed  = {
-                title: `${pseudo}\'s balance updated.`,
+                title: `${users[0].pseudo}\'s balance updated.`,
                 color: 0x0146b1,
                 author: {
                     name: 'Some name',
                     icon_url: 'https://i.imgur.com/AfFp7pu.png',
                     url: 'https://discord.js.org',
                 },
-                description: `New balance : ${moneyUpdated} ( ancien : ${money} )`,
+                description: `New balance : ${newMoney} ( ancien : ${users[0].money} )`,
                 thumbnail: {
                     url: 'https://i.imgur.com/AfFp7pu.png',
                 },
@@ -98,41 +81,16 @@ export async function doSomething(res, req) {
                     icon_url: 'https://i.imgur.com/AfFp7pu.png',
                 },
             };
-
-
-            return res.send({
-                type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-                data: {
-                    //content: `New balance : ${moneyUpdated} ( ancien : ${money} )`
-
-
-                    embeds: [embed],
-
-                }
-            });
-
-
-
+            resEmbed(res, embed);
         }
         catch(error) {
             console.log(error);
-            return res.send({
-                type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-                data: {
-                    content: 'Something went wrong with updating.',
-                },
-            });
-
+            resString(res, 'Something went wrong with updating.')
         }
 
     }catch(error){
         console.log(error);
-        return res.send({
-            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: {
-                content: error,
-            },
-        });
+        resString(res, error);
 
     }
 }

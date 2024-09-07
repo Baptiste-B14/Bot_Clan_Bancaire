@@ -1,8 +1,9 @@
-import {User} from "../models/userData.js";
+import {User} from "../models/user.js";
 
 import {
     InteractionResponseType
 } from "discord-interactions";
+import {resString} from "../utils/res.js";
 
 export const COMMAND_DEF = {
     name: 'account',
@@ -12,7 +13,7 @@ export const COMMAND_DEF = {
         name: 'pseudo',
         description: 'The pseudonyme of your character',
         required: true,
-        type: 4,
+        type: 3,
         }
         ],
 }
@@ -27,29 +28,13 @@ export async function doSomething(res, req) {
                money:  0,
                moneyUsed: 0
         });
-
-        return res.send({
-                type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-                data: {
-                    content: `User  ${user.pseudo} created.`,
-                },
-            });
+        resString(res, `User  ${user.pseudo} created.`);
     }
     catch(error) {
         if (error.name === 'SequelizeUniqueConstraintError') {
-            return res.send({
-                    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-                    data: {
-                        content: 'You already posess an account',
-                    },
-                });
+            resString(res, 'You already posess an account');
         }
         console.log(error);
-        return res.send({
-            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: {
-                content: 'Something went wrong with creating an account.',
-            },
-        });
+        resString(res, 'Something went wrong with creating an account.')
     }
 }
