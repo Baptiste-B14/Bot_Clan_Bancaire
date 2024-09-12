@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { Sequelize } from 'sequelize';
+import { Sequelize, DataTypes } from 'sequelize';
 import { db } from '../database/db.js'
 import { simpleInsert, simpleSelect } from './queries.js'
 import { askQuestion, getModel, modelExists } from './usefull.js';
@@ -127,11 +127,15 @@ async function create(){
         switch (colTypeName) {
             case 'int':
             case 'integer':
-                colType = Sequelize.INTEGER
+                colType = DataTypes.INTEGER
                 break;
             case 'string':
-                colType = Sequelize.STRING;
+                colType = DataTypes.STRING;
                 break;
+            case 'bool':
+            case 'boolean':
+                colType = DataTypes.BOOLEAN;
+                break;    
             default:
                 throwError("Type de colonne inconnu")
                 break;
@@ -232,7 +236,7 @@ function writeDictToFile(dict, location) {
         for(const colProperty in dict[colName]){
             line = line + `\t\t\t${colProperty}: `
             if(dict[colName][colProperty].toString() != "true"){
-            line = line + 'Sequelize.'
+            line = line + 'DataTypes.'
             }
             line = line + dict[colName][colProperty].toString() + ',\n'
         }       

@@ -21,4 +21,20 @@ export const Model = db.define(
         timestamps: false,
     }
 );
-//Model.sync({force: true})import { Sequelize } from 'sequelize'
+//Model.sync({force: true})
+
+//possessPlanet
+//user
+
+//ressourcesTransaction
+//armedEntityTransaction
+
+//possesionsRessources idCharacter, idRessources, qte
+
+//spaceFleet idSpaceFleet, IdProp, nom, statut
+//groundFleet idGroundFleet, IdProp, nom, statut
+
+//armedEntityIsInSpaceFleet -> idPossession, IdSpaceFleet
+//armedEntityIsInGroundFleet -> idPossession, IdGroundFleet
+
+//possessesArmedEntity ->id, propriétaire, plaque, idModel, actualPV 
