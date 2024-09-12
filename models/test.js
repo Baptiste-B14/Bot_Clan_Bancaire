@@ -23,6 +23,9 @@ export const Model = db.define(
 );
 //Model.sync({force: true})
 
+//reductionAdvantage
+//productionAdvantage
+
 //possessPlanet
 //user
 
