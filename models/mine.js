@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
-const sequelize = require('../database/db');
+const db = require('../database/db');
 
-const Planet = sequelize.define('mine', {
+const Planet = db.define('mine', {
     id:{
         type: Sequelize.INTEGER,
         autoIncrement: true,

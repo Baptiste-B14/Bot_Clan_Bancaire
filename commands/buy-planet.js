@@ -4,7 +4,7 @@ import {
 import {User} from "../models/user.js";
 import {Planet} from "../models/planet.js"
 import {HasPlanet} from "../models/hasPlanet.js";
-import {removeMoney} from "../utils/removeMoneyFunction.js";
+import {removeMoney} from "../utils/moneyFunction.js";
 import {resString} from "../utils/res.js";
 import {simpleSelect, selectWithWhere} from "../utils/queries.js";
 

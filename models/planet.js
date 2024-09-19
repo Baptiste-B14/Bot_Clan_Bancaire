@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
-import { sequelize } from "../database/db.js";
+import { db } from "../database/db.js";
 
-export const Planet = sequelize.define('planet', {
+export const Planet = db.define('planet', {
     id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,

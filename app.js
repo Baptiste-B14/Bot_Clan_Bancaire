@@ -5,49 +5,48 @@ import {
   InteractionResponseType,
   verifyKeyMiddleware,
 } from 'discord-interactions';
+import { modifyMessage } from './utils/modifyMessage.js';
 
-// Create an express app
 const app = express();
-// Get port, or default to 3000
 const PORT = process.env.PORT || 3000;
 
 
-/**
- * Interactions endpoint URL where Discord will send HTTP requests
- * Parse request body and verifies incoming requests using discord-interactions package
- */
+app.use(express.json());
+
 app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async function (req, res) {
-  // Interaction type and data
-  const { type, data } = req.body;
+  const { type, data, member } = req.body;
+  const userId = member.user.id; // Utiliser l'ID de l'utilisateur pour stocker les sélections individuelles
 
-  /**
-   * Handle verification requests
-   */
-  if (type === InteractionType.PING) {
-    return res.send({ type: InteractionResponseType.PONG });
-  }
 
-  /**
-   * Handle slash command requests
-   * See https://discord.com/developers/docs/interactions/application-commands#slash-commands
-   */
-  try {
-    if (type === InteractionType.APPLICATION_COMMAND) {
-      const {name} = data;
+  // Commande slash /store
+  if (type === InteractionType.APPLICATION_COMMAND) {
+    const { name } = data;
 
+    try {
       const {doSomething} = await import('./commands/' + name + '.js');
-      return await doSomething(res, req);
-
-      // console.error(`unknown command: ${name}`);
-      // return res.status(400).json({ error: 'unknown command' });
+          return await doSomething(res, req);
+    } catch (error) {
+      console.error(`Erreur lors de l'exécution de la commande ${name}:`, error);
+      return res.status(500).json({ error: 'Erreur lors de l\'exécution de la commande' });
     }
-  }catch (error ){
-    console.log(error);
-    return res.status(400).json({ content: error });
   }
 
-  console.error('unknown interaction type', type);
-  return res.status(400).json({ error: 'unknown interaction type' });
+
+  if (type === InteractionType.MESSAGE_COMPONENT) {
+   
+    
+    try{
+      return await modifyMessage(res, req);
+    }catch (error) {
+      console.error(`Erreur lors de l'exécution l'interaction:`, error);
+      return res.status(500).json({ error: 'Erreur lors de l\'exécution de la commande' });
+    }
+
+
+  }
+
+  // Si l'interaction n'est pas gérée
+  return res.status(400).json({ error: 'Interaction inconnue' });
 });
 
 app.listen(PORT, () => {

@@ -1,5 +1,4 @@
 import {User} from "../models/user.js";
-import { ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle} from "discord.js";
 import {
     InteractionResponseType
 } from "discord-interactions";
@@ -85,35 +84,10 @@ export async function doSomething(res, req) {
                 },
             };
 
-            // Menu déroulant pour les catégories
-            const categoryMenu = new StringSelectMenuBuilder()
-                .setCustomId('category_select')
-                .setPlaceholder('Sélectionnez une catégorie')
-                .addOptions([
-                    { label: 'Vaisseaux', value: 'vaisseaux' },
-                    { label: 'Armes', value: 'armes' },
-                    { label: 'Armures', value: 'armures' },
-                    { label: 'Objets divers', value: 'divers' },
-                ]);
-
-            // Bouton pour confirmer la sélection et mettre à jour le message
-            const confirmButton = new ButtonBuilder()
-                .setCustomId('confirm_category')
-                .setLabel('Confirmer la catégorie')
-                .setStyle(ButtonStyle.Primary);
-
-            // Ajouter le menu et le bouton dans une rangée
-            const row = new ActionRowBuilder().addComponents(categoryMenu);
-            const buttonRow = new ActionRowBuilder().addComponents(confirmButton);
-
-
-
-
     return res.send({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
                 embeds: [embed],
-                components: [row, buttonRow],
             },
         });
     }catch (error){

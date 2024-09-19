@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { getRPSChoices } from './game.js';
+//import { getRPSChoices } from './game.js';
 import { capitalize, InstallGlobalCommands } from './utils/usefull.js';
 import { readdirSync } from 'fs';
 

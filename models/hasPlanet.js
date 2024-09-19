@@ -1,9 +1,9 @@
 import { Sequelize } from 'sequelize';
-import { sequelize } from "../database/db.js";
+import { db } from "../database/db.js";
 import { User } from './user.js';
 import { Planet} from "./planet.js";
 
-export const HasPlanet = sequelize.define('hasPlanet', {
+export const HasPlanet = db.define('hasPlanet', {
     discordId: {
         type: Sequelize.STRING,
         unique: false,

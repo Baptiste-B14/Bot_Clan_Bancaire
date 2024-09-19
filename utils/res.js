@@ -21,3 +21,13 @@ export function resEmbed(res, embed) {
         },
     })
 }
+
+export function resEmbedComponent(res, embed, component) {
+    return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+           embeds: [embed],
+           components: component
+        },
+    })
+}
