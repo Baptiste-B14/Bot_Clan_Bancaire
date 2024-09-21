@@ -7,7 +7,7 @@ export const Model = db.define(
 		conflict_id: {
 			type: DataTypes.INTEGER,
 		},
-		fleet_id: {
+		ground_fleet_id: {
 			type: DataTypes.INTEGER,
 		},
 	},

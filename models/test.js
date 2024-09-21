@@ -23,19 +23,7 @@ export const Model = db.define(
 );
 //Model.sync({force: true})
 
-//reductionAdvantage
-//productionAdvantage
-
-//possessPlanet
 //user
-
-//ressourcesTransaction
-//armedEntityTransaction
-
-//possesionsRessources idCharacter, idRessources, qte
-
-//spaceFleet idSpaceFleet, IdProp, nom, statut
-//groundFleet idGroundFleet, IdProp, nom, statut
 
 //armedEntityIsInSpaceFleet -> idPossession, IdSpaceFleet
 //armedEntityIsInGroundFleet -> idPossession, IdGroundFleet

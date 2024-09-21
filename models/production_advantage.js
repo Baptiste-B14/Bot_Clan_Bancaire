@@ -2,16 +2,22 @@ import { Sequelize } from 'sequelize'
 import { db } from '../database/db.js'
 
 export const Model = db.define(
-	'participates_in_a_space_conflict',
+	'production_advantage',
 	{
-		conflict_id: {
+		id: {
+			type: DataTypes.INTEGER,
+			autoIncrement: true,
+			unique: true,
+			primaryKey: true,
+		},
+		ressource_id: {
 			type: DataTypes.INTEGER,
 		},
-		space_fleet_id: {
+		production_amount: {
 			type: DataTypes.INTEGER,
 		},
 	},
 	{
-		timestamps: false,
+		timestamps: false
 	},
 );

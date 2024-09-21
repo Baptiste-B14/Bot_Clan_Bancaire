@@ -16,7 +16,7 @@ export const Model = db.define(
 		character_class: {
 			type: DataTypes.INTEGER,
 		},
-		force: {
+		strength: {
 			type: DataTypes.INTEGER,
 		},
 		dexterity: {
@@ -28,40 +28,22 @@ export const Model = db.define(
 		intelligence: {
 			type: DataTypes.INTEGER,
 		},
-		wisdom: {
+		intiution: {
 			type: DataTypes.INTEGER,
 		},
 		charisma: {
 			type: DataTypes.INTEGER,
 		},
-		speed: {
+		physic: {
 			type: DataTypes.INTEGER,
 		},
-		initiative: {
+		reflexes: {
 			type: DataTypes.INTEGER,
 		},
-		reputation: {
+		mind: {
 			type: DataTypes.INTEGER,
 		},
-		defense: {
-			type: DataTypes.INTEGER,
-		},
-		defense_score: {
-			type: DataTypes.INTEGER,
-		},
-		defense_class: {
-			type: DataTypes.INTEGER,
-		},
-		defense_attribute: {
-			type: DataTypes.INTEGER,
-		},
-		defense_other: {
-			type: DataTypes.INTEGER,
-		},
-		life_points: {
-			type: DataTypes.INTEGER,
-		},
-		fatigue_points: {
+		actual_life_points: {
 			type: DataTypes.INTEGER,
 		},
 	},
@@ -69,3 +51,8 @@ export const Model = db.define(
         timestamps: false,
     }
 );
+
+//SPEED =  (strength + dexterity + physic) /3
+//Initiative = Intelligence + intuition
+//Def = (strength + dex + const)/3
+//PV = Const + 10
