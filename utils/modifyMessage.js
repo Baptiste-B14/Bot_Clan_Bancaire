@@ -5,6 +5,7 @@ import {
     InteractionResponseType,
   } from 'discord-interactions';
   import { ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } from "discord.js";
+  import { selectorBuilder, buttonBuilder } from "./componentBuilder.js";
 
 
 
@@ -32,6 +33,10 @@ export async function modifyMessage(res, req) {
     if (custom_id.startsWith('buy_')) {
       const category = custom_id.split('_')[1];
       return await handleItemPurchase(res, req, category);
+    }
+
+    if (custom_id === 'cancel_action') {
+        return await 
     }
 
 }
@@ -77,29 +82,31 @@ export async function handleCategoryConfirmation(res, req, selectedCategories) {
 export async function handleCategorySelection(res, req, selectedCategories) {
     try {
         const categoryList = selectedCategories.join(', ');
+
+        const options = [{ label: 'Vaisseaux', value: 'vaisseaux' },
+        { label: 'Armes', value: 'armes' },
+        { label: 'Armures', value: 'armures' },
+        { label: 'Objets divers', value: 'divers' },
+        ]
+
+        const formattedOptions = options.map(option => ({
+            label: option.label,
+            value: option.value,
+            default: selectedCategories.includes(option.value)  // Si l'option a été sélectionnée, on la marque par défaut
+        }));
+    
+        const categoryMenu = new selectorBuilder('category_select', 'Sélectionnez une ou plusieurs catégories', formattedOptions, 1, 4);
+
+        const confirmButton = new buttonBuilder('confirm_category', 'Confirmer' , ButtonStyle.Primary);
+        const cancelButton = new buttonBuilder('cancel_action', 'Annuler', ButtonStyle.Danger);
+
+        const selectRow = new ActionRowBuilder().addComponents(categoryMenu);
+        const buttonRow = new ActionRowBuilder().addComponents(confirmButton, cancelButton);
         res.send({
             type: InteractionResponseType.UPDATE_MESSAGE,
             data: {
                 content: `Catégories sélectionnées : ${categoryList}. Veuillez confirmer.`,
-                components: [
-                    {
-                        type: 1,
-                        components: [
-                            {
-                                type: 2,
-                                label: "Confirmer",
-                                style: 1,
-                                custom_id: "confirm_category"
-                            },
-                            {
-                                type: 2,
-                                label: "Annuler",
-                                style: 4,
-                                custom_id: "cancel_action"
-                            }
-                        ]
-                    }
-                ],
+                components: [selectRow, buttonRow],
             },
         });
     } catch (error) {
