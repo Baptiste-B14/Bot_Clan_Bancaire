@@ -36,7 +36,7 @@ export async function modifyMessage(res, req) {
     }
 
     if (custom_id === 'cancel_action') {
-        return await 
+        return await handleCancel(res, req);
     }
 
 }
@@ -56,6 +56,13 @@ export async function handleCategoryConfirmation(res, req, selectedCategories) {
             timestamp: new Date().toISOString(),
         };
 
+        const itemsOptions = [{ label: 'Vaisseau qui va vite', value: 'vaisseaux' },
+            { label: 'Lance-Kayou', value: 'armes' },
+            { label: 'Patator', value: 'autre' },
+            { label: 'Spoofer3000', value: 'divers' },
+            ]
+
+        const item_Menu = new selectorBuilder('item_select', 'Selectionner un ou plusieurs items', itemsOptions, 1, 4);
         const categoryButtons = 
             new ButtonBuilder()
                 .setCustomId('buy_')
@@ -64,12 +71,13 @@ export async function handleCategoryConfirmation(res, req, selectedCategories) {
         
 
         const buttonsRow = new ActionRowBuilder().addComponents(categoryButtons);
+        const selectRow = new ActionRowBuilder().addComponents(item_Menu);
 
         res.send({
             type: InteractionResponseType.UPDATE_MESSAGE,
             data: {
                 embeds: [categoryEmbed],
-                components: [buttonsRow],
+                components: [selectRow, buttonsRow],
             },
         });
     } catch (error) {
@@ -167,6 +175,19 @@ export async function handleItemPurchase(res, req, category) {
         console.error("Erreur lors de l'achat de l'item:", error);
         resString(res, 'Erreur lors de l\'achat.');
     }
+}
+
+export async function handleCancel(res, req){
+     
+     return res.send({
+        type: InteractionResponseType.UPDATE_MESSAGE,
+        data: {
+            content: 'Action annulée.',
+            embeds : [],
+            components: [],  
+        },
+    });
+
 }
 
 // Fonction pour ajuster la quantité
