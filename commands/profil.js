@@ -1,4 +1,4 @@
-import {User} from "../models/user.js";
+import {User} from "../models/1-user.js";
 import {
     InteractionResponseType
 } from "discord-interactions";
@@ -37,14 +37,14 @@ export async function doSomething(res, req) {
 
             const { pseudo, money } = users.dataValues;
             const embed = {
-                title: `${users[0].pseudo}'s balance updated.`,
+                title: `${pseudo}'s balance updated.`,
                 color: 0x0146b1,
                 author: {
                     name: 'Some name',
                     icon_url: 'https://i.imgur.com/AfFp7pu.png',
                     url: 'https://discord.js.org',
                 },
-                description: `New balance : ${newMoney} ( ancien : ${users[0].money} )`,
+                description: `Balance : ${money}`,
                 thumbnail: {
                     url: 'https://i.imgur.com/AfFp7pu.png',
                 },
@@ -97,7 +97,7 @@ export async function doSomething(res, req) {
                 content: 'Error',
             },
         });*/
-            throw new Error("ma bite est trop grosse");
+            throw new Error(error);
     }
 
 }

@@ -5,40 +5,42 @@ export const Model = db.define(
 	'planet',
 	{
 		id: {
-			type: DataTypes.INTEGER,
+			type: Sequelize.INTEGER,
 			autoIncrement: true,
-			unique: true,
 			primaryKey: true,
 		},
 		name: {
-			type: DataTypes.STRING,
+			type: Sequelize.STRING,
 		},
 		description: {
-			type: DataTypes.STRING,
+			type: Sequelize.STRING,
+		},
+		planet_price: {
+			type: Sequelize.INTEGER,
 		},
 		prod_advantage_id: {
-			type: DataTypes.INTEGER,
+			type: Sequelize.INTEGER,
 		},
 		reduction_advantage_id: {
-			type: DataTypes.INTEGER,
+			type: Sequelize.INTEGER,
 		},
 		is_mine_built: {
-			type: DataTypes.BOOLEAN,
+			type: Sequelize.BOOLEAN,
 		},
 		mine_cost: {
-			type: DataTypes.INTEGER,
+			type: Sequelize.INTEGER,
 		},
 		mine_build_time: {
-			type: DataTypes.INTEGER,
+			type: Sequelize.INTEGER,
 		},
 		mine_weekly_income: {
-			type: DataTypes.INTEGER,
+			type: Sequelize.INTEGER,
 		},
 		mine_max_amount: {
-			type: DataTypes.INTEGER,
+			type: Sequelize.INTEGER,
 		},
 		mine_last_collect: {
-			type: DataTypes.BIGINT,
+			type: Sequelize.BIGINT,
 		},
 	},
 	{

@@ -1,22 +1,30 @@
 import { ActionRowBuilder, ActionRow } from "discord.js";
-import { resString } from "./res.js";
+import { resEmbedComponent, resString, resEmbedComponentUpdate } from "./res.js";
 import {
     InteractionType,
     InteractionResponseType,
-  } from 'discord-interactions';
-  import { ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } from "discord.js";
-  import { selectorBuilder, buttonBuilder } from "./componentBuilder.js";
-
+} from 'discord-interactions';
+import { ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } from "discord.js";
+import { selectorBuilder, buttonBuilder, cancelButton } from "./componentBuilder.js";
+import { category, category_value } from "./categories.js";
 
 
 const userCart = new Map(); 
-let userSelections = {};  
+let userSelections = {};
+let selectedCategories = [];
+let selectedItemsCart = [[]];
+let itemsSelected= [];
+let page_number = 1;
+let embed = [];
+let items = [];
+let components = [];
 
 export async function modifyMessage(res, req) {
     const { type, data, member } = req.body;
     const { custom_id } = data;
     const userId = member.user.id
-    let selectedCategories = [];
+    const itemsSelected = data.values;
+    
 
     // Gérer la sélection des catégories
     if (custom_id === 'category_select') {
@@ -25,27 +33,69 @@ export async function modifyMessage(res, req) {
     }
 
     // Gérer la confirmation
-    if (custom_id === 'confirm_category') {
-      return await handleCategoryConfirmation(res, req, selectedCategories);
+    if (custom_id === 'confirm_category') {  
+        return await handleCategoryConfirmation(res, req, selectedCategories);
     }
 
     // Gérer l'achat d'items spécifiques
     if (custom_id.startsWith('buy_')) {
       const category = custom_id.split('_')[1];
-      return await handleItemPurchase(res, req, category);
+      return await handleItemPurchase(res, req);
     }
 
     if (custom_id === 'cancel_action') {
         return await handleCancel(res, req);
     }
 
+    if (custom_id === 'next_page'){
+        return await changePage(res, req, selectedCategories, 1);
+    }
+
+    if (custom_id === 'previous_page'){
+        return await changePage(res, req, selectedCategories, -1);
+    }
+
+    if (custom_id === 'item_select'){
+        return await handleItemSelection(res, req);
+    }
+    if (custom_id === 'view_cart'){
+        return await handleViewCart(res, req);
+    }
+ 
+    if (custom_id === 'buy_') {
+        return await handleItemPurchase(res, req);
+    }
+    
+    if (custom_id === 'select_item_to_modify') {
+        return await handleSelectItemToModify(res, req);
+    }
+    
+    if (custom_id === 'plus_quantity' || custom_id === 'minus_quantity') {
+        return await handleQuantityAdjustment(res, req);
+    }
+    
+    if (custom_id === 'confirm_quantity') {
+        return await handleConfirmQuantity(res, req);
+    }
+    
+    if (custom_id === 'confirm_cart') {
+        return await handleConfirmCart(res, req);
+    }
+    
+    if (custom_id === 'cancel_action') {
+        return await handleCancel(res, req);
+    }
+    
 }
 
+export async function handleConfirmQuantity(res, req) {
+    // Retourne au sélecteur d'items après confirmation de la quantité
+    return await handleItemPurchase(res, req);
+}
 
 export async function handleCategoryConfirmation(res, req, selectedCategories) {
     try {
-        console.log("confirm");
-        const categoryEmbed = {
+        embed = {
             title: `Boutique`,
             color: 0x0146b1,
             description: `Voici les articles disponibles pour les catégories sélectionnées :`,
@@ -56,30 +106,28 @@ export async function handleCategoryConfirmation(res, req, selectedCategories) {
             timestamp: new Date().toISOString(),
         };
 
-        const itemsOptions = [{ label: 'Vaisseau qui va vite', value: 'vaisseaux' },
-            { label: 'Lance-Kayou', value: 'armes' },
-            { label: 'Patator', value: 'autre' },
-            { label: 'Spoofer3000', value: 'divers' },
-            ]
-
-        const item_Menu = new selectorBuilder('item_select', 'Selectionner un ou plusieurs items', itemsOptions, 1, 4);
-        const categoryButtons = 
-            new ButtonBuilder()
-                .setCustomId('buy_')
-                .setLabel('Acheter')
-                .setStyle(ButtonStyle.Primary);
+        
+        const itemsOptions = await category_value(selectedCategories);
+        items = itemsOptions.map((item) => ({
+            label: item.name,
+            value: item.name,
+        }));
         
 
-        const buttonsRow = new ActionRowBuilder().addComponents(categoryButtons);
-        const selectRow = new ActionRowBuilder().addComponents(item_Menu);
 
-        res.send({
-            type: InteractionResponseType.UPDATE_MESSAGE,
-            data: {
-                embeds: [categoryEmbed],
-                components: [selectRow, buttonsRow],
-            },
-        });
+        
+        const nextButton = new buttonBuilder('next_page', `page ${page_number+1}`, ButtonStyle.Secondary);
+        const item_Menu = new selectorBuilder('item_select', 'Selectionner un ou plusieurs items', items.slice(25*page_number - 25, 25*page_number), 10);
+        const buyButton = new buttonBuilder('buy_', 'Acheter', ButtonStyle.Primary);
+        const viewCartButton = new buttonBuilder('view_cart', 'Voir Panier', ButtonStyle.Secondary);
+    
+
+        const buttonsRow = new ActionRowBuilder().addComponents(buyButton, nextButton, viewCartButton);
+        const selectRow = new ActionRowBuilder().addComponents(item_Menu);
+        components =  [selectRow, buttonsRow];
+
+        resEmbedComponentUpdate(res, embed, components);
+        
     } catch (error) {
         console.error("Erreur dans la confirmation de catégorie:", error.message);
         resString(res, `Erreur lors de la confirmation : ${error.message}`);
@@ -87,34 +135,33 @@ export async function handleCategoryConfirmation(res, req, selectedCategories) {
 }
 
 
+
+
 export async function handleCategorySelection(res, req, selectedCategories) {
     try {
-        const categoryList = selectedCategories.join(', ');
+        const categoryList = selectedCategories.join(', ');    
+        
+        const categories = category;
 
-        const options = [{ label: 'Vaisseaux', value: 'vaisseaux' },
-        { label: 'Armes', value: 'armes' },
-        { label: 'Armures', value: 'armures' },
-        { label: 'Objets divers', value: 'divers' },
-        ]
-
-        const formattedOptions = options.map(option => ({
+        
+        const formattedOptions = categories.map((option) => ({
             label: option.label,
             value: option.value,
             default: selectedCategories.includes(option.value)  // Si l'option a été sélectionnée, on la marque par défaut
         }));
     
-        const categoryMenu = new selectorBuilder('category_select', 'Sélectionnez une ou plusieurs catégories', formattedOptions, 1, 4);
+        const categoryMenu = new selectorBuilder('category_select', 'Sélectionnez une ou plusieurs catégories', formattedOptions, category.length);
 
         const confirmButton = new buttonBuilder('confirm_category', 'Confirmer' , ButtonStyle.Primary);
-        const cancelButton = new buttonBuilder('cancel_action', 'Annuler', ButtonStyle.Danger);
-
+        
         const selectRow = new ActionRowBuilder().addComponents(categoryMenu);
         const buttonRow = new ActionRowBuilder().addComponents(confirmButton, cancelButton);
+        components = [selectRow, buttonRow]
         res.send({
             type: InteractionResponseType.UPDATE_MESSAGE,
             data: {
                 content: `Catégories sélectionnées : ${categoryList}. Veuillez confirmer.`,
-                components: [selectRow, buttonRow],
+                components: components,
             },
         });
     } catch (error) {
@@ -123,59 +170,190 @@ export async function handleCategorySelection(res, req, selectedCategories) {
     }
 }
 
-// Fonction pour gérer l'achat d'items avec gestion de la quantité
-export async function handleItemPurchase(res, req, category) {
+
+export async function changePage(res, req, selectedCategories, value) {
+    page_number += value;
+    
+    const buyButton = new buttonBuilder('buy_', 'Acheter', ButtonStyle.Primary);
+    const buttonsRow = new ActionRowBuilder().addComponents(buyButton);
+
+    if (page_number > 1) {
+        const previousPageButton = new buttonBuilder('previous_page', `page ${page_number - 1}`, ButtonStyle.Secondary);
+        buttonsRow.addComponents(previousPageButton);
+    }
+
+    if (page_number < items.length / 25) {
+        const nextPageButton = new buttonBuilder('next_page', `page ${page_number + 1}`, ButtonStyle.Secondary);
+        buttonsRow.addComponents(nextPageButton);
+    }
+
+    const formattedOptions = items.map((option) => ({
+        label: option.label,
+        value: option.value,
+        default: itemsSelected.includes(option.value)
+    }));
+
+    const item_Menu = new selectorBuilder('item_select', 'Sélectionner un ou plusieurs items', formattedOptions.slice(25 * page_number - 25, 25 * page_number), 10);
+    const selectRow = new ActionRowBuilder().addComponents(item_Menu);
+
+    components = [selectRow, buttonsRow];
+    resEmbedComponentUpdate(res, embed, components);
+}
+
+
+export async function handleItemSelection(res, req){
+    const { data }= req.body;
+    const newlySelectedItems = data.values;
+    
+    itemsSelected = [...new Set([...itemsSelected, ...newlySelectedItems])];
+    
+    const formattedOptions = items.map((option) => ({
+        label: option.label,
+        value: option.value,
+        default: itemsSelected.includes(option.value)  // Si l'option a été sélectionnée, on la marque par défaut
+    }));
+
+    const item_Menu = new selectorBuilder('item_select', 'Selectionner un ou plusieurs items', formattedOptions.slice(25*page_number - 25, 25*page_number), 10);
+    selectedItemsCart = itemsSelected.map(item => [item, 1]);
+    const viewCartButton = new buttonBuilder('view_cart', 'Voir Panier', ButtonStyle.Secondary);
+    console.log(components[1]);
+    components[1] = new ActionRowBuilder().addComponents(components[1].components, viewCartButton);
+    //components[1].components.addComponents(viewCartButton);
+    console.log(components[1]);
+    components[0] = new ActionRowBuilder().addComponents(item_Menu),
+    
+    embed.description = `Items sélectionnées : ${itemsSelected}. Veuillez confirmer.`;
+    resEmbedComponentUpdate(res, embed, components);
+
+}
+
+
+
+export async function handleItemPurchase(res, req) {
     try {
-        const userId = req.body.member.user.id;
-        const cart = userCart.get(userId) || [];
+        // Vérifie si des items ont été sélectionnés
+        if (itemsSelected.length === 0) {
+            embed = {
+                title: `Boutique`,
+                color: 0x0146b1,
+                description: `Voici les articles disponibles pour les catégories sélectionnées :`,
+                fields: 'Aucun item selectionné',
+                timestamp: new Date().toISOString(),
+            };
+            resEmbedComponentUpdate(res, embed, components);
+        }
 
-        // Quantité par défaut
-        let quantity = 1;
+        // Crée le sélecteur pour les items déjà sélectionnés
+        const formattedOptions = itemsSelected.map((item, index) => ({
+            label: item,
+            value: String(index),  // Utilise l'index comme valeur pour faciliter la récupération
+        }));
 
-        const itemEmbed = {
-            title: `Achat de ${category}`,
-            color: 0x0146b1,
-            description: `Choisissez la quantité à acheter pour l'item ${category}.`,
-            fields: [
-                {
-                    name: 'Quantité actuelle',
-                    value: `${quantity}`,
-                },
-            ],
+        // Sélecteur d'item
+        const item_Menu = new selectorBuilder('select_item_to_modify', 'Sélectionner un item à modifier', formattedOptions, 1);  // Max 1 sélection
+        const confirmCartButton = new buttonBuilder('confirm_cart', 'Confirmer l\'achat du panier', ButtonStyle.Success);
+        
+        // Action rows
+        const selectRow = new ActionRowBuilder().addComponents(item_Menu);
+        const buttonRow = new ActionRowBuilder().addComponents(confirmCartButton, cancelButton);
+        
+        components = [selectRow, buttonRow];
+
+        // Mise à jour du message avec le sélecteur d'items
+        embed = {
+            title: 'Acheter des items',
+            description: `Sélectionnez un item pour modifier la quantité ou confirmer l'achat du panier.`,
             timestamp: new Date().toISOString(),
         };
 
-        // Boutons pour ajuster la quantité
-        const minusButton = new ButtonBuilder()
-            .setCustomId('minus_quantity')
-            .setLabel('-')
-            .setStyle(ButtonStyle.Secondary);
-
-        const plusButton = new ButtonBuilder()
-            .setCustomId('plus_quantity')
-            .setLabel('+')
-            .setStyle(ButtonStyle.Secondary);
-
-        const addToCartButton = new ButtonBuilder()
-            .setCustomId(`add_to_cart_${category}`)
-            .setLabel('Ajouter au Panier')
-            .setStyle(ButtonStyle.Success);
-
-        const buttonRow = new ActionRowBuilder().addComponents(minusButton, plusButton, addToCartButton);
-
-        res.send({
-            type: InteractionResponseType.UPDATE_MESSAGE,
-            data: {
-                embeds: [itemEmbed],
-                components: [buttonRow],
-            },
-        });
+        resEmbedComponentUpdate(res, embed, components);
 
     } catch (error) {
         console.error("Erreur lors de l'achat de l'item:", error);
         resString(res, 'Erreur lors de l\'achat.');
     }
 }
+
+export async function handleSelectItemToModify(res, req) {
+    const { data } = req.body;
+    const selectedItemIndex = parseInt(data.values[0], 10);  // Récupère l'index de l'item sélectionné
+
+    // Récupère l'item sélectionné et sa quantité
+    const selectedItem = itemsSelected[selectedItemIndex];
+    let selectedItemQuantity = selectedItemsCart[selectedItemIndex][1];  // Quantité actuelle
+
+    embed = {
+        title: `Modification de l'item : ${selectedItem}`,
+        description: `Quantité actuelle : ${selectedItemQuantity}`,
+        timestamp: new Date().toISOString(),
+    };
+
+    // Boutons pour ajuster la quantité
+    const minusButton = new buttonBuilder('minus_quantity', '-', ButtonStyle.Secondary);
+    const plusButton = new buttonBuilder('plus_quantity', '+', ButtonStyle.Secondary);
+    const confirmQuantityButton = new buttonBuilder('confirm_quantity', 'Confirmer', ButtonStyle.Success);
+    
+    const buttonRow = new ActionRowBuilder().addComponents(minusButton, plusButton, confirmQuantityButton);
+
+    components = [buttonRow];
+
+    resEmbedComponentUpdate(res, embed, components);
+}
+
+
+export async function handleQuantityAdjustment(res, req) {
+    const { custom_id } = req.body.data;
+
+    // Trouve l'item en cours de modification et sa quantité actuelle
+    const selectedItemIndex = itemsSelected.findIndex(item => item === embed.title.split(': ')[1]);
+    let quantity = selectedItemsCart[selectedItemIndex][1];
+
+    // Ajuste la quantité en fonction du bouton cliqué
+    if (custom_id === 'plus_quantity') {
+        quantity += 1;
+    } else if (custom_id === 'minus_quantity' && quantity > 1) {
+        quantity -= 1;
+    }
+
+    // Met à jour la quantité de l'item sélectionné dans le panier
+    selectedItemsCart[selectedItemIndex][1] = quantity;
+
+    // Met à jour l'embed avec la nouvelle quantité
+    embed.description = `Quantité actuelle : ${quantity}`;
+
+    resEmbedComponentUpdate(res, embed, components);
+}
+
+
+export async function handleConfirmCart(res, req) {
+    const userId = req.body.member.user.id;
+    const cart = selectedItemsCart;
+
+    if (cart.length === 0) {
+        return res.send({
+            type: InteractionResponseType.UPDATE_MESSAGE,
+            data: {
+                content: 'Votre panier est vide.',
+                components: [],
+            },
+        });
+    }
+
+    const totalItems = cart.map(item => `${item[1]} x ${item[0]}`).join(', ');
+
+    // Réinitialise le panier après confirmation
+    selectedItemsCart = [[]];
+    itemsSelected = [];
+
+    res.send({
+        type: InteractionResponseType.UPDATE_MESSAGE,
+        data: {
+            content: `Vous avez acheté : ${totalItems}.`,
+            components: [],  // Supprime les boutons après la confirmation
+        },
+    });
+}
+
 
 export async function handleCancel(res, req){
      
@@ -190,59 +368,6 @@ export async function handleCancel(res, req){
 
 }
 
-// Fonction pour ajuster la quantité
-export async function handleQuantityAdjustment(res, req, action, category, quantity) {
-    try {
-        // Ajuster la quantité
-        if (action === 'plus_quantity') {
-            quantity += 1;
-        } else if (action === 'minus_quantity' && quantity > 1) {
-            quantity -= 1;
-        }
-
-        const updatedEmbed = {
-            title: `Achat de ${category}`,
-            color: 0x0146b1,
-            description: `Quantité à acheter : ${quantity}`,
-            fields: [
-                {
-                    name: 'Quantité actuelle',
-                    value: `${quantity}`,
-                },
-            ],
-            timestamp: new Date().toISOString(),
-        };
-
-        const minusButton = new ButtonBuilder()
-            .setCustomId('minus_quantity')
-            .setLabel('-')
-            .setStyle(ButtonStyle.Secondary);
-
-        const plusButton = new ButtonBuilder()
-            .setCustomId('plus_quantity')
-            .setLabel('+')
-            .setStyle(ButtonStyle.Secondary);
-
-        const addToCartButton = new ButtonBuilder()
-            .setCustomId(`add_to_cart_${category}`)
-            .setLabel('Ajouter au Panier')
-            .setStyle(ButtonStyle.Success);
-
-        const buttonRow = new ActionRowBuilder().addComponents(minusButton, plusButton, addToCartButton);
-
-        res.send({
-            type: InteractionResponseType.UPDATE_MESSAGE,
-            data: {
-                embeds: [updatedEmbed],
-                components: [buttonRow],
-            },
-        });
-
-    } catch (error) {
-        console.error("Erreur lors de l'ajustement de la quantité:", error);
-        resString(res, 'Erreur lors de l\'ajustement de la quantité.');
-    }
-}
 
 // Fonction pour ajouter un item au panier
 export async function handleAddToCart(res, req, category, quantity) {

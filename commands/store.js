@@ -1,7 +1,10 @@
-import { ActionRowBuilder, ButtonStyle } from "discord.js";
+import { ActionRowBuilder, ButtonStyle, StringSelectMenuBuilder } from "discord.js";
 import { InteractionResponseType } from "discord-interactions";
 import { resString, resEmbed, resEmbedComponent } from "../utils/res.js";
 import { selectorBuilder, buttonBuilder } from "../utils/componentBuilder.js";
+import { simpleSelect } from "../utils/queries.js";
+import { Model as armed_entity } from "../models/armed_entity.js";
+import { category } from "../utils/categories.js";
 
 export const COMMAND_DEF = {
     name: 'store',
@@ -21,27 +24,38 @@ export async function doSomething(res, req) {
             },
         };
 
-        const categoryMenu = new selectorBuilder('category_select', 'Sélectionnez une ou plusieurs catégories', [
-            { label: 'Vaisseaux', value: 'vaisseaux' },
-            { label: 'Armes', value: 'armes' },
-            { label: 'Armures', value: 'armures' },
-            { label: 'Objets divers', value: 'divers' },
-        ], 1, 4);
+
+        const categories = category;
+        /*
+        const categories = await simpleSelect(armed_entity, ['name'], false);
+        const mapper = categories.map((category) => ({
+            label: category.name,
+            value: category.name,
+        }));
+        */
+
+        const mapper = categories.map((category) => ({
+            label: category.label,
+            value: category.value,
+        }));
+       
+        const categoryMenu = new selectorBuilder('category_select', 'Sélectionnez une ou plusieurs catégories', mapper, category.length);
             
         const confirmButton = new buttonBuilder('confirm_category', 'Confirmer' , ButtonStyle.Primary);
         const cancelButton = new buttonBuilder('cancel_action', 'Annuler', ButtonStyle.Danger);
-        const viewCartButton = new buttonBuilder('view_cart', 'Voir Panier', ButtonStyle.Secondary);
+
     
     
+        
+        const buttonRow = new ActionRowBuilder().addComponents(confirmButton, cancelButton);
         const categoryRow = new ActionRowBuilder().addComponents(categoryMenu);
-        const buttonRow = new ActionRowBuilder().addComponents(confirmButton, cancelButton, viewCartButton);
         
         resEmbedComponent(res, embed, [categoryRow, buttonRow]);
-            
+        
             
     } catch (error) {
         console.error(error);
-        resString(res, 'Une erreur est survenue');
+        resString(res, error);
     }
 }
 

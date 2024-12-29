@@ -1,7 +1,7 @@
 import {
     InteractionResponseType
 } from "discord-interactions";
-import {User} from "../models/user.js";
+import {User} from "../models/1-user.js";
 import {Planet} from "../models/planet.js"
 import {HasPlanet} from "../models/hasPlanet.js";
 import {removeMoney} from "../utils/moneyFunction.js";
@@ -26,7 +26,7 @@ export async function doSomething(res, req) {
     try {
         const channel = req.body.data.options.find(options => options.name === 'planet').value;
         const user = req.body.member.user.id;
-        const planetToBuy = selectWithWhere(Planet, ['cost'], { salon: channel });
+        const planetToBuy = selectWithWhere(Planet, ['cost'], { salon: channel }, false);
         //const planetToBuy = await Planet.findOne({where: {salon: channel }, attributes: ['cost']});
 
         if (planetToBuy != null){

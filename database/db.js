@@ -12,9 +12,17 @@ const envPath = path.resolve(__dirname, '../.env');
 // Charger le fichier .env
 dotenv.config({ path: envPath });
 
+
+export const db = new Sequelize("database_clan_bancaire_dev_baptiste", "root", "mdp", {
+    dialect: "mysql",
+    host: "localhost",
+
+    logging: false,
+});
+/*
 export const db = new Sequelize(process.env.DATABASE, process.env.USER, process.env.PWD, {
     dialect: process.env.DIALECT,
     host: process.env.HOST,
 
     logging: false,
-});
+});*/

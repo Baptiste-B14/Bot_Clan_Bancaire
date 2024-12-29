@@ -31,3 +31,14 @@ export function resEmbedComponent(res, embed, component) {
         },
     })
 }
+
+export function resEmbedComponentUpdate(res, embed, component) {
+    return res.send({
+        type: InteractionResponseType.UPDATE_MESSAGE,
+        data: {
+            embeds: [embed],
+            components: component,
+        },
+    });
+
+}

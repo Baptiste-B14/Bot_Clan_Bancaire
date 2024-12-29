@@ -1,5 +1,5 @@
 import {addMoney} from "../utils/moneyFunction.js";
-import {User} from "../models/user.js";
+import {User} from "../models/1-user.js";
 import {resString, resEmbed} from "../utils/res.js";
 import * as queries from "../utils/queries.js";
 
@@ -28,7 +28,7 @@ export async function doSomething(res, req) {
         const player = req.body.data.options.find(option => option.name === 'player').value;
         const amount = req.body.data.options.find(option => option.name === 'amount').value;
 
-        const users = await queries.selectWithWhere(User, ['pseudo', 'money'], {discordId: player} );
+        const users = await queries.selectWithWhere(User, ['pseudo', 'money'], {discordId: player}, false );
         if(users === null) resString(res, 'Le joueur que vous avez sélectionné n\'est pas référencé dans le jeu');
         try{
             const newMoney = await addMoney(player, users[0].money, amount);

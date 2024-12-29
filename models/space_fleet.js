@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize'
 import { db } from '../database/db.js'
+import { DataTypes } from 'sequelize';
 
 export const Model = db.define(
 	'space_fleet',
@@ -7,7 +8,6 @@ export const Model = db.define(
 		id: {
 			type: DataTypes.INTEGER,
 			autoIncrement: true,
-			unique: true,
 			primaryKey: true,
 		},
 		owner_id: {

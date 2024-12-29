@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize'
 import { db } from '../database/db.js'
+import { DataTypes } from 'sequelize';
 
 export const Model = db.define(
 	'participates_in_a_ground_conflict',

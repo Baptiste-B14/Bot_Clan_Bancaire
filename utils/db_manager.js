@@ -3,7 +3,7 @@ import { Sequelize, DataTypes } from 'sequelize';
 import { db } from '../database/db.js'
 import { simpleInsert, simpleSelect } from './queries.js'
 import { askQuestion, getModel, modelExists } from './usefull.js';
-import {writeFileSync} from 'fs';
+import {writeFileSync, readdir} from 'fs';
 
 const types = ['int', 'integer', 'string', 'date', 'bool', 'boolean', 'long', 'text', 'short']
 const modelsPath = process.env.MODELS_PATH;
@@ -41,6 +41,10 @@ try {
                     break;
                 case 't':
                     console.log("Test phase")
+                    break;
+                case 'sy':
+                    throwInfo("Synchronization sélectionée");
+                    synchro();
                     break;
                 default:
                     throwError("Argument inconnu");
@@ -193,6 +197,28 @@ async function create(){
     
 }
 
+
+async function synchro() {
+   
+    const path = '../models/';
+
+// Lire tous les fichiers du dossier
+readdir(path, (err, files) => {
+  if (err) {
+    return console.error(`Impossible de lire le dossier: ${err}`);
+  }
+
+  files.forEach(async file => {
+    
+    const {Model} = await import(`../models/${file}`);
+      
+
+    db.sync({ alter: true });
+    
+  });
+});
+    
+}
 
 
 /*=================================

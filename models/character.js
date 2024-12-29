@@ -7,7 +7,6 @@ export const Model = db.define(
 		id: {
 			type: DataTypes.INTEGER,
 			autoIncrement: true,
-			unique: true,
 			primaryKey: true,
 		},
 		name: {

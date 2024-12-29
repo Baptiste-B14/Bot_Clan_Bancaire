@@ -1,5 +1,5 @@
 
-import {User} from "../models/user.js";
+import {User} from "../models/1-user.js";
 import {simpleUpdate} from "../utils/queries.js";
 
 export function addMoney(id, moneyPlayer, arg){

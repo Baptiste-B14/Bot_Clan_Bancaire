@@ -14,20 +14,22 @@ export async function simpleInsert(model, insertDict){
 export async function simpleDelete(model, wheres){
     await model.destroy({
         where: wheres
-    })
+    })Z
 }
 
 export async function alterTable(model, isForced) {
     await model.sync({force: isForced})
 }
 
-export async function selectWithWhere(model, champs, conditions) {
+export async function selectWithWhere(model, champs, conditions, debug) {
     const models = await model.findAll({
         attributes: champs,
         where: conditions
     });
     const modelsJSON = JSON.parse(JSON.stringify(models));
-    console.log(modelsJSON);
+    if(debug == true){
+        console.log(modelsJSON)
+    }
     return modelsJSON;
 }
 

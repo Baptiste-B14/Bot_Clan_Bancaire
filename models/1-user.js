@@ -5,23 +5,19 @@ export const User = db.define('user', {
     id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
-        unique: true,
         primaryKey: true
     },
     discordId: {
         type: Sequelize.STRING,
         allowNull: true,
-        unique: true,
     },
     username: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true
     },
     pseudo: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true
     },
     money: {
         type: Sequelize.INTEGER,

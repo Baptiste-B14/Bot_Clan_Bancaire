@@ -10,11 +10,14 @@ export function buttonBuilder(id, label, style) {
  
 }
 
-export function selectorBuilder(id, placeholder, options, minValue, maxValue){
+export function selectorBuilder(id, placeholder, options, maxValues){
     return new StringSelectMenuBuilder()
     .setCustomId(id)
     .setPlaceholder(placeholder)
-    .addOptions(options)
-    .setMinValues(minValue)
-    .setMaxValues(maxValue);
+    .addOptions(...options)
+    .setMinValues(1)
+    .setMaxValues(maxValues)
+    
 }
+
+export const cancelButton = new buttonBuilder('cancel_action', 'Annuler', ButtonStyle.Danger);

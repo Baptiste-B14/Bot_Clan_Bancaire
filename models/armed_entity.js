@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize'
 import { db } from '../database/db.js'
+import { DataTypes } from 'sequelize';
 
 export const Model = db.define(
 	'armed_entity',
@@ -7,8 +8,13 @@ export const Model = db.define(
 		id: {
 			type: DataTypes.INTEGER,
 			autoIncrement: true,
-			unique: true,
 			primaryKey: true,
+		},	
+		name: {
+			type: DataTypes.STRING,
+		},
+		class:{
+			type: Sequelize.STRING,
 		},
 		life_points: {
 			type: DataTypes.INTEGER,
