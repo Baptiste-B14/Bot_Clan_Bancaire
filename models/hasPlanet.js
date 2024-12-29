@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { db } from "../database/db.js";
 import { User } from './1-user.js';
-import { Planet} from "./2-planet.js";
+import { Model as Planet} from "./2-planet.js";
 
 
 export const HasPlanet = db.define('hasPlanet', {

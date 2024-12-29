@@ -1,4 +1,4 @@
-import {Planet} from "../models/planet.js";
+import {Model as Planet} from "../models/2-planet.js";
 import {getChannelInfo} from "../utils/channelInfo.js";
 import {extractPlanetName} from "../utils/extractPlanetName.js";
 import {

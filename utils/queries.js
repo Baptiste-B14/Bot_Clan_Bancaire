@@ -14,7 +14,7 @@ export async function simpleInsert(model, insertDict){
 export async function simpleDelete(model, wheres){
     await model.destroy({
         where: wheres
-    })Z
+    })
 }
 
 export async function alterTable(model, isForced) {

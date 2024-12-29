@@ -2,7 +2,7 @@ import {
     InteractionResponseType
 } from "discord-interactions";
 import {User} from "../models/1-user.js";
-import {Planet} from "../models/planet.js"
+import {Model as Planet} from "../models/2-planet.js"
 import {HasPlanet} from "../models/hasPlanet.js";
 import {removeMoney} from "../utils/moneyFunction.js";
 import {resString} from "../utils/res.js";
