@@ -8,22 +8,24 @@ export const COMMAND_DEF = {
 
 export async function handleRollDiceCommand(res) {
     try {
-        // Initialisation des statistiques
         const rolls = [];
         const counts = [0, 0, 0, 0, 0, 0];
 
-        // Lancer les dés 2024 fois
         for (let i = 0; i < 2024; i++) {
             const roll = Math.floor(Math.random() * 6) + 1;
             rolls.push(roll);
             counts[roll - 1] += 1;
         }
 
-      
         const total = rolls.reduce((sum, roll) => sum + roll, 0);
         const average = (total / rolls.length).toFixed(2);
 
-     
+       
+        const rollGroups = [];
+        for (let i = 0; i < rolls.length; i += 20) {
+            rollGroups.push(rolls.slice(i, i + 20).join(", "));
+        }
+
         const embed = {
             title: 'Dice Roll Results',
             color: 0x0099ff,
@@ -37,19 +39,20 @@ export async function handleRollDiceCommand(res) {
                 { name: 'Face 4', value: counts[3].toString(), inline: true },
                 { name: 'Face 5', value: counts[4].toString(), inline: true },
                 { name: 'Face 6', value: counts[5].toString(), inline: true },
+                ...rollGroups.map((group, index) => ({
+                    name: `Rolls ${index * 20 + 1}-${Math.min((index + 1) * 20, rolls.length)}`,
+                    value: group,
+                })),
             ],
             timestamp: new Date().toISOString(),
-            footer: {
-                text: 'Happy rolling!',
-            },
+            
         };
-         
 
-      
+        // Répondre à l'utilisateur
         res.send({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
-                embeds: [embed.toJSON()],
+                embeds: [embed],
             },
         });
     } catch (error) {
